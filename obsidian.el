@@ -1115,6 +1115,8 @@ See `markdown-follow-link-at-point' and `markdown-follow-wiki-link-at-point'."
     ("M" . "%-m")
     ("DD" . "%d")
     ("D" . "%-d")
+    ("dddd" . "%A")
+    ("ddd" . "%a")
     ("HH" . "%H")
     ("H" . "%-H")
     ("hh" . "%I")
@@ -1138,10 +1140,13 @@ See `markdown-follow-link-at-point' and `markdown-follow-wiki-link-at-point'."
     (insert moment-format)
     (goto-char 0)
     (save-match-data
-      (while (re-search-forward obsidian--moment-format-regex nil t)
-        (let* ((matched-text (match-string 0))
-               (replacement (cdr (assoc matched-text obsidian--moment-format-map))))
-          (replace-match replacement t))))
+      (let ((case-fold-search nil))
+        (while (re-search-forward obsidian--moment-format-regex nil t)
+          (let* ((matched-text (match-string 0))
+                 (replacement (cdr (assoc matched-text obsidian--moment-format-map))))
+            (if replacement
+                (replace-match replacement t)
+              (error "Unknown moment.js format specifier: %s" matched-text))))))
     (buffer-string)))
 
 (defun obsidian--substitute-template-variables (template-content title)
