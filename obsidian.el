@@ -6,7 +6,7 @@
 ;; URL: https://github.com/licht1stein/obsidian.el
 ;; Keywords: obsidian, pkm, convenience
 ;; Version: 1.4.4
-;; Package-Requires: ((emacs "27.2") (f "0.2.0") (s "1.12.0") (dash "2.13") (markdown-mode "2.5") (elgrep "1.0.0") (yaml "0.5.1") (ht "2.3"))
+;; Package-Requires: ((emacs "27.2") (f "0.2.0") (s "1.12.0") (dash "2.13") (markdown-mode "2.5") (yaml "0.5.1") (ht "2.3"))
 ;; This file is NOT part of GNU Emacs.
 
 ;;; License:
@@ -43,7 +43,6 @@
 (require 'cl-lib)
 
 (require 'markdown-mode)
-(require 'elgrep)
 (require 'yaml)
 
 (defgroup obsidian nil "Obsidian Notes group." :group 'text)
@@ -1093,11 +1092,18 @@ See `markdown-follow-link-at-point' and `markdown-follow-wiki-link-at-point'."
 
 (defun obsidian--grep (re)
   "Find RE in the Obsidian vault."
-  (elgrep obsidian-directory "\.md" re
-          :recursive t
-          :case-fold-search t
-          :exclude-file-re (if obsidian-include-hidden-files "~" "^\\.\\|~")
-          :exclude-dir-re ".obsidian"))
+  (let ((default-directory obsidian-directory))
+    (let ((grep-command
+           (list "rg" "-i"
+                 "--no-heading"
+                 "-nH"
+                 "-g" "!.obsidian"
+                 "-g" "!*~*"
+                 "-e" re)))
+      (grep (mapconcat
+             #'shell-quote-argument
+             grep-command
+             " ")))))
 
 (defun obsidian--link-p (s)
   "Check if S matches any of the link regexes."
