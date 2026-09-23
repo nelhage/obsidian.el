@@ -1093,7 +1093,7 @@ See `markdown-follow-link-at-point' and `markdown-follow-wiki-link-at-point'."
 (defun obsidian--grep (re)
   "Find RE in the Obsidian vault."
   (let ((default-directory obsidian-directory))
-    (let ((grep-command
+    (let ((obsidian--grep-command
            (list "rg" "-i"
                  "--no-heading"
                  "-nH"
@@ -1102,7 +1102,7 @@ See `markdown-follow-link-at-point' and `markdown-follow-wiki-link-at-point'."
                  "-e" re)))
       (grep (mapconcat
              #'shell-quote-argument
-             grep-command
+             obsidian--grep-command
              " ")))))
 
 (defun obsidian--link-p (s)
